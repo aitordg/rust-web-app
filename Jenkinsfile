@@ -10,6 +10,6 @@ pipeline {
         sh 'docker login ${REGISTRY_HOST} \
           -u ${REGISTRY_USR} -p ${REGISTRY_PSW}'
       }
-    
- }   
+    }
+  }
 }
