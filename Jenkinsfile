@@ -8,7 +8,7 @@ pipeline {
     stage('Smoke Test') {
       agent{
           dockerfile{
-              filename 'dockerfiles/docker-compose.dockerfile'
+              filename 'docker-compose.dockerfile'
               args "--net host -v /var/run/docker.sock:/var/run/docker.sock"
           }
       }
