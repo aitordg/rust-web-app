@@ -1,21 +1,15 @@
 pipeline {
-	agent {
-	 dockerfile{
-		 filename 'Dockerfile-curl'
-		 args '-v /var/run/docker.sock:/var/run/docker.sock'
-		}
-	}
-	stages {	 
-		stage('Check Curl') {
-			when {branch 'master'} 
-				steps {
-					sh 'curl --version'
-				}
-			}
-		stage('Check the Weather') {
-			steps {
-				sh 'curl wttr.in/malaga'
-			}
-		}
-	}
+  environment {
+    REGISTRY = credentials('REGISTRY')
+    REGISTRY_HOST = 3.8.148.166
+  }
+  agent any
+  stages {
+    stage('Docker Registry Log in') {
+      steps {
+        sh 'docker login ${REGISTRY_HOST} \
+          -u ${REGISTRY_USR} -p ${REGISTRY_PSW}'
+      }
+    
+ }   
 }
