@@ -11,5 +11,16 @@ pipeline {
           -u ${REGISTRY_USR} -p ${REGISTRY_PSW}'
       }
     }
+    stage('Unit Test') {
+      agent {
+        docker {
+          image '${REGISTRY_HOST}/rust_base'
+        }
+        steps {
+          sh 'rustup default nightly-2018-04-04'
+          sh 'cargo test'
+        }
+      }
+    }
   }
 }
