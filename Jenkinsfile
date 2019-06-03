@@ -1,9 +1,12 @@
 pipeline {
-  agent { docker { image 'ubuntu:latest' } }
+  agent { 
+    dockerfile {
+      filename 'Dockerfile-curl'
+    } 
+  }
   stages {
     stage('build') {
       steps {
-        sh 'apt-get update && apt-get install curl -y'
         sh 'curl wttr.in/malaga'
       }
     }
