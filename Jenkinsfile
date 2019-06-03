@@ -14,13 +14,13 @@ pipeline {
     stage('Unit Test') {
       agent {
         docker {
-          image '${REGISTRY_HOST}/rust_base'
+          image '${REGISTRY_HOST}/rust-base'
         }
-        steps {
+      }
+      steps {
           sh 'rustup default nightly-2018-04-04'
           sh 'cargo test'
         }
-      }
     }
   }
 }
