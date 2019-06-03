@@ -14,7 +14,7 @@ pipeline {
 			}
 		stage('Check the Weather') {
 			steps {
-				sh 'curl wttr.in'
+				sh 'curl wttr.in/malaga'
 			}
 		}
 	}
