@@ -3,7 +3,9 @@ version: '3.3'
 services:
 
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: ./Dockerfile-UnitTest-add
     ports:
       - 8888:80
     restart: always
