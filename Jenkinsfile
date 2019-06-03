@@ -1,7 +1,6 @@
 pipeline {
-  agent any
+  agent { docker { image 'ubuntu:latest' } }
   stages {
-    agent { docker { image 'ubuntu:latest' } }
     stage('build') {
       steps {
         sh 'curl wttr.in'
