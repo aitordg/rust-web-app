@@ -14,7 +14,7 @@ pipeline {
   stages {
     stage('Docker build') {
       steps {
-        sh 'docker build -t ${DOCKER_IMAGE} -f dockerfiles/Dockerfile .'
+        sh 'docker build -t ${DOCKER_IMAGE} -f Dockerfile-UnitTest-add .'
       }
     }
     stage('Docker Up') {
