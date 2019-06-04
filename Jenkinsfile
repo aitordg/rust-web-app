@@ -9,6 +9,8 @@ pipeline {
     MYSQL_DATABASE = 'heroes'
     MYSQL_USER = 'user'
     MYSQL_PASSWORD = 'password'
+    SLACK_CHANNEL = 'a-bit-of-everything'
+    SLACK_TEAM_DOMAIN = 'devopspipelines'
   }
   agent any
   stages {
@@ -43,9 +45,21 @@ pipeline {
     }
   }
   post {
-    always {
-      sh 'docker kill ${DOCKER_IMAGE} ${DB_IMAGE} || true'
-      sh 'docker network rm ${DOCKER_NETWORK_NAME} || true'
+    success {
+        slackSend (
+            channel: "${SLACK_CHANNEL}", 
+            teamDomain: "${SLACK_TEAM_DOMAIN}", 
+            tokenCredentialId: 'SLACK_TOKEN_ID', 
+            color: '#00FF00', 
+            message: "SUCCESSFUL: Job '${JOB_NAME} [${BUILD_NUMBER}]' (${BUILD_URL})")
+    }
+    failure {
+        slackSend (
+            channel: "${SLACK_CHANNEL}", 
+            teamDomain: "${SLACK_TEAM_DOMAIN}", 
+            tokenCredentialId: 'SLACK_TOKEN_ID', 
+            color: '#FF0000', 
+            message: "FAILED: Job '${JOB_NAME} [${BUILD_NUMBER}]' (${BUILD_URL})")
     }
   }
 }
