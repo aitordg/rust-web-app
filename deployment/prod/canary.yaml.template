@@ -16,7 +16,6 @@ spec:
       labels:
         app: web
         track: canary
----
     spec:
       imagePullSecrets:
       - name: private-registry
