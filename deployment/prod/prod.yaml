@@ -93,3 +93,4 @@ spec:
   selector:
     app: web
     track: stable
+  type: NodePort
