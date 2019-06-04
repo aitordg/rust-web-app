@@ -263,16 +263,16 @@ pipeline {
   }
   post {
     always {
-      sh 'docker kill ${DOCKER_IMAGE} ${DB_IMAGE} ${DOCKER_PF_WEB} ${DOCKER_PF_DB} || true '
-      sh 'docker network rm ${DOCKER_NETWORK_NAME} || true'
-      sh 'docker kill \
-                web-port-forward-smoke-test || true'
-      sh 'docker run -v ${HOME}/.kube:/root/.kube \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -e AWS_ACCESS_KEY_ID=${AWS_STAGING_USR} \
-            -e AWS_SECRET_ACCESS_KEY=${AWS_STAGING_PSW} \
-            mendrugory/ekskubectl \
-            kubectl delete po ${K8S_IT_POD} -n staging' 
+      //sh 'docker kill ${DOCKER_IMAGE} ${DB_IMAGE} ${DOCKER_PF_WEB} ${DOCKER_PF_DB} || true '
+      //sh 'docker network rm ${DOCKER_NETWORK_NAME} || true'
+      //sh 'docker kill \
+      //          web-port-forward-smoke-test || true'
+      //sh 'docker run -v ${HOME}/.kube:/root/.kube \
+      //      -v /var/run/docker.sock:/var/run/docker.sock \
+      //      -e AWS_ACCESS_KEY_ID=${AWS_STAGING_USR} \
+      //      -e AWS_SECRET_ACCESS_KEY=${AWS_STAGING_PSW} \
+      //      mendrugory/ekskubectl \
+      //      kubectl delete po ${K8S_IT_POD} -n staging' 
     }
     success {
         slackSend (
