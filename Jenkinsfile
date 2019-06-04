@@ -20,6 +20,7 @@ pipeline {
     DOCKER_PF_WEB = 'web-port-forward-smoke-test'
     DOCKER_PF_DB = 'db-port-forward-test'
     K8S_IT_POD = 'integration-tests'
+    DOCKER_PF_DB_PROD = 'db-port-forward-prod'
   }
   agent any
   stages {
