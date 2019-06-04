@@ -140,7 +140,7 @@ pipeline {
         }                        
         steps {
             sh 'kubectl apply -f deployment/staging/staging.yml'
-            sh 'kubectl apply -f deployment/staging/integration-tests.yaml'
+            sh 'kubectl apply -f deployment/staging/integration_tests.yaml'
         }                
     }
     //stage('Staging: Port forwarding') {     
