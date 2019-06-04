@@ -45,6 +45,10 @@ pipeline {
     }
   }
   post {
+    always {
+      sh 'docker kill ${DOCKER_IMAGE} ${DB_IMAGE} || true'
+      sh 'docker network rm ${DOCKER_NETWORK_NAME} || true'
+    }
     success {
         slackSend (
             channel: "${SLACK_CHANNEL}", 
