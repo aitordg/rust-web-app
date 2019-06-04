@@ -209,16 +209,12 @@ pipeline {
     }
     stage('Staging: Integration Test') {
         agent {
-            dockerfile {
-                filename 'dockerfiles/python.dockerfile' 
-                args '--net=host \
-                    -e WEB_HOST=0.0.0.0:8888 \
-                    -e DB_HOST=0.0.0.0 \
-                    -e DB_DATABASE=${MYSQL_DATABASE} \
-                    -e DB_USER=${MYSQL_USER} \
-                    -e DB_PASSWORD=${MYSQL_PASSWORD}'
-                }
-            }
+            docker {
+            image 'mendrugory/ekskubectl'
+            args '-v ${HOME}/.kube:/root/.kube \
+            -e AWS_ACCESS_KEY_ID=${AWS_STAGING_USR} \
+            -e AWS_SECRET_ACCESS_KEY=${AWS_STAGING_PSW}'
+        }
         steps {
             sh 'kubectl exec -n staging -it ${K8S_IT_POD} \
                 -- python3 integration_tests/integration_test.py' 
