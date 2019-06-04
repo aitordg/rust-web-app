@@ -270,7 +270,7 @@ pipeline {
     stage('Deploy Canary to Prodution') {
         agent {
             docker {
-              image 'mendrugory/ekskubectl'
+              
               args '-v ${HOME}/.kube:/root/.kube \
                 -e AWS_ACCESS_KEY_ID=${AWS_PROD_USR} \
                 -e AWS_SECRET_ACCESS_KEY=${AWS_PROD_PSW}'
