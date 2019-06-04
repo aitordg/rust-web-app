@@ -14,6 +14,7 @@ pipeline {
     AWS_STAGING = credentials('AWS')
     AWS_STAGING_DEFAULT_REGION = 'eu-west-2'
     AWS_STAGING_CLUSTER_NAME= 'cluster-of-User2'
+    DOCKER_PF_WEB = 'web-port-forward-smoke-test'
   }
   agent any
   stages {
@@ -152,7 +153,7 @@ pipeline {
                     returnStdout: true)
                 echo "The pod is ${PODNAME}"
                 sh(script: "docker run \
-                    --name web-port-forward-smoke-test \
+                    --name ${DOCKER_PF_WEB} \
                     -v ${HOME}/.kube:/root/.kube -p 8888:8888 --rm \
                     -v /var/run/docker.sock:/var/run/docker.sock    \
                     -e AWS_ACCESS_KEY_ID=${AWS_STAGING_USR} \
@@ -161,10 +162,14 @@ pipeline {
                     kubectl port-forward \
                     --address 0.0.0.0 -n staging \
                     ${PODNAME} 8888:80 &")
-                sh 'sleep 10 \
-                    && docker run --net=host --rm \
-                    byrnedo/alpine-curl --fail -I http://0.0.0.0:8888/health'
+                sh 'sleep 10'
             }
+        }
+    }
+    stage('Staging: Port forwarding') {
+        steps {
+            sh 'docker run --net=host --rm \
+                byrnedo/alpine-curl --fail -I http://0.0.0.0:8888/health'
         }
     }
   }
