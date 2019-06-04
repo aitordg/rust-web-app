@@ -126,6 +126,19 @@ pipeline {
                 kubectl get pods'
         }
     }
+    stage('Deploy to Staging') {
+        agent {
+            docker {
+                image 'mendrugory/ekskubectl'
+                args '-v ${HOME}/.kube:/root/.kube \
+                    -e AWS_ACCESS_KEY_ID=${AWS_STAGING_USR} \
+                    -e AWS_SECRET_ACCESS_KEY=${AWS_STAGING_PSW}'
+            }
+        }                        
+        steps {
+            sh 'kubectl apply -f deployment/staging/staging.yaml'
+        }                
+    }
   }
   post {
     always {
