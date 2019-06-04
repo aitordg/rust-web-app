@@ -277,7 +277,7 @@ pipeline {
                 -e AWS_SECRET_ACCESS_KEY=${AWS_PROD_PSW} \
                 mendrugory/ekskubectl \
                 kubectl port-forward \
-                --address 0.0.0.0 ${PODNAME} 3305:3306 &")
+                --address 0.0.0.0 ${PODNAME} 3306:3306 &")
             sh 'sleep 10'
             }
         }
@@ -286,8 +286,7 @@ pipeline {
         agent {
             dockerfile {
                 filename 'diesel-cli.dockerfile' 
-                args '--entrypoint="" --net=host \
-                -e DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@0.0.0.0:3305/${MYSQL_DATABASE}'    
+                args '--entrypoint="" --net=host -e DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@0.0.0.0:3305/${MYSQL_DATABASE}'    
             }
         }
         steps {
