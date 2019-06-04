@@ -196,7 +196,7 @@ pipeline {
     stage('Staging: DB Migration') {
         agent {
             dockerfile {
-                filename 'dockerfiles/diesel-cli.dockerfile' 
+                filename 'diesel-cli.dockerfile' 
                     args '--entrypoint="" --net=host \
                     -e DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@0.0.0.0:3306/${MYSQL_DATABASE}'    
             }
