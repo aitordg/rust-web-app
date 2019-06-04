@@ -171,6 +171,8 @@ pipeline {
     always {
       sh 'docker kill ${DOCKER_IMAGE} ${DB_IMAGE} || true'
       sh 'docker network rm ${DOCKER_NETWORK_NAME} || true'
+      sh 'docker kill \
+                web-port-forward-smoke-test || true'
     }
     success {
         slackSend (
