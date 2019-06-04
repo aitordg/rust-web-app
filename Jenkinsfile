@@ -50,20 +50,36 @@ pipeline {
       }
     }
     stage('DB Migration') {
-    agent {
-        dockerfile {
-            filename 'diesel-cli.dockerfile' 
-            args '-v ${PWD}:/volume \
-                -w /volume \
-                --entrypoint="" \
-                --net ${DOCKER_NETWORK_NAME} \
-                -e DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${DB_IMAGE}:3306/${MYSQL_DATABASE}'
+        agent {
+            dockerfile {
+                filename 'diesel-cli.dockerfile' 
+                args '-v ${PWD}:/volume \
+                    -w /volume \
+                    --entrypoint="" \
+                    --net ${DOCKER_NETWORK_NAME} \
+                    -e DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${DB_IMAGE}:3306/${MYSQL_DATABASE}'
+                }
+            }
+        steps {
+            sh 'diesel migration run' 
+        }
+    }
+    stage('Integration Test') {
+        agent {
+            dockerfile {
+                filename 'dockerfiles/python.dockerfile' 
+                    args '--net ${DOCKER_NETWORK_NAME} \
+                        -e WEB_HOST=${DOCKER_IMAGE} \
+                        -e DB_HOST=${DB_IMAGE} \
+                        -e DB_DATABASE=${MYSQL_DATABASE} \
+                        -e DB_USER=${MYSQL_USER} \
+                        -e DB_PASSWORD=${MYSQL_PASSWORD}'
             }
         }
-    steps {
-        sh 'diesel migration run' 
+        steps {
+            sh 'python3 integration_tests/integration_test.py' 
+        }
     }
-}
   }
   post {
     always {
