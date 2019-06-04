@@ -205,6 +205,22 @@ pipeline {
             sh 'diesel migration run'    
         }                
     }
+    stage('Staging: Integration Test') {
+        agent {
+            dockerfile {
+                filename 'dockerfiles/python.dockerfile' 
+                args '--net=host \
+                    -e WEB_HOST=0.0.0.0:8888 \
+                    -e DB_HOST=0.0.0.0 \
+                    -e DB_DATABASE=${MYSQL_DATABASE} \
+                    -e DB_USER=${MYSQL_USER} \
+                    -e DB_PASSWORD=${MYSQL_PASSWORD}'
+                }
+            }
+        steps {
+            sh 'python3 integration_tests/integration_test.py' 
+        }                
+    } 
   }
   post {
     always {
