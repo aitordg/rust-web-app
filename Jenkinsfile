@@ -257,6 +257,15 @@ pipeline {
                 message: "Job '${JOB_NAME} [${BUILD_NUMBER}]' is waiting for authorization before deploying to production. (${BUILD_URL})")
         }
     }
+    stage('Authorization before Deploying') {
+        input {
+            message "Let's Deploy !!!"
+            ok "Yeaaahh !!!"
+        } 
+        steps {
+            echo "Authorization before Deploying"
+        } 
+    }
     stage('Deploy to Prodution') {
         agent {
             docker {
