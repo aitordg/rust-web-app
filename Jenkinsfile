@@ -260,6 +260,39 @@ pipeline {
             sh 'kubectl apply -f deployment/prod/prod.yaml'
         }                
     }
+    stage('Production: Port Forwarding - Tunel') {                     
+        steps {
+            script {
+                PODNAME = sh(script: "docker run -v ${HOME}/.kube:/root/.kube \
+                    -e AWS_ACCESS_KEY_ID=${AWS_PROD_USR} \
+                    -e AWS_SECRET_ACCESS_KEY=${AWS_PROD_PSW} \
+                    mendrugory/ekskubectl kubectl get pods -l app=db \
+                    -o jsonpath='{.items[0].metadata.name}'", returnStdout: true)
+                echo "The pod is ${PODNAME}"                                        
+            sh(script: "docker run --name ${DOCKER_PF_DB_PROD} \
+                -v ${HOME}/.kube:/root/.kube -p 3305:3306 --rm \
+                -v /var/run/docker.sock:/var/run/docker.sock    \
+                -e AWS_ACCESS_KEY_ID=${AWS_PROD_USR} \
+                -e AWS_SECRET_ACCESS_KEY=${AWS_PROD_PSW} \
+                mendrugory/ekskubectl \
+                kubectl port-forward \
+                --address 0.0.0.0 ${PODNAME} 3305:3306 &")
+            sh 'sleep 10'
+            }
+        }
+    }
+    stage('Produntion: DB Migration') {
+        agent {
+            dockerfile {
+                filename 'diesel-cli.dockerfile' 
+                args '--entrypoint="" --net=host \
+                -e DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@0.0.0.0:3305/${MYSQL_DATABASE}'    
+            }
+        }
+        steps {
+            sh 'diesel migration run'
+        }
+    }
   }
   post {
     //always {
