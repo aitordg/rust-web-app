@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: canary-web
+  namespace: default
+  labels:
+    app: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web  
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: web
+        track: canary
+---
+    spec:
+      imagePullSecrets:
+      - name: private-registry
+      containers:
+      - image: 3.8.148.166/web:{{VERSION}}
+        name: web
+        env:
+        - name: DATABASE_URL
+          value: mysql://user:password@db:3306/heroes
+        - name: ROCKET_ENV
+          value: prod
+        ports:
+        - containerPort: 80
+          name: web
+---  
+apiVersion: v1
+kind: Service
+metadata:
+  name: canary-web
+  namespace: default
+  labels:
+    app: web  
+    track: canary
+spec:
+  ports:
+  - port: 80
+    targetPort: web
+  selector:
+    app: web
+    track: canary

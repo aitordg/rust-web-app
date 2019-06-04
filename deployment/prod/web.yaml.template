@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: default
+  labels:
+    app: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web  
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: web
+        track: stable
+    spec:
+      imagePullSecrets:
+      - name: private-registry
+      containers:
+      - image: 3.8.148.166/web:{{VERSION}}
+        imagePullPolicy: Always
+        name: web
+        env:
+        - name: DATABASE_URL
+          value: mysql://user:password@db:3306/heroes
+        - name: ROCKET_ENV
+          value: prod
+        ports:
+        - containerPort: 80
+          name: web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: default
+  labels:
+    app: web  
+    track: stable
+spec:
+  ports:
+  - port: 80
+    targetPort: web
+  selector:
+    app: web
+    track: stable

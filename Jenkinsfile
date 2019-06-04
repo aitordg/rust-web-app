@@ -21,6 +21,7 @@ pipeline {
     DOCKER_PF_DB = 'db-port-forward-test'
     K8S_IT_POD = 'integration-tests'
     DOCKER_PF_DB_PROD = 'db-port-forward-prod'
+    LB_DOMAIN_NAME = '5de23233-default-ingress-e8c7-1631423480.eu-west-2.elb.amazonaws.com'
   }
   agent any
   stages {
@@ -257,16 +258,16 @@ pipeline {
                 message: "Job '${JOB_NAME} [${BUILD_NUMBER}]' is waiting for authorization before deploying to production. (${BUILD_URL})")
         }
     }
-    stage('Authorization before Deploying') {
-        input {
-            message "Let's Deploy !!!"
-            ok "Yeaaahh !!!"
-        } 
-        steps {
-            echo "Authorization before Deploying"
-        } 
-    }
-    stage('Deploy to Prodution') {
+    /stage('Authorization before Deploying') {
+    /    input {
+    /        message "Let's Deploy !!!"
+    /        ok "Yeaaahh !!!"
+    /    } 
+    /    steps {
+    /        echo "Authorization before Deploying"
+    /    } 
+    /}
+    stage('Deploy Canary to Prodution') {
         agent {
             docker {
                 image 'mendrugory/ekskubectl'
@@ -274,11 +275,45 @@ pipeline {
                     -e AWS_ACCESS_KEY_ID=${AWS_PROD_USR} \
                     -e AWS_SECRET_ACCESS_KEY=${AWS_PROD_PSW}'
                 }
-            }                        
+            }
         steps {
-            sh "sed 's@{{VERSION}}@$BUILD_NUMBER@g' deployment/prod/prod.yaml.template > deployment/prod/prod.yaml"
-            sh 'kubectl apply -f deployment/prod/prod.yaml'
+            sh "sed 's@{{VERSION}}@$BUILD_NUMBER@g' deployment/prod/canary.yaml.template > deployment/prod/canary.yaml"
+            sh 'kubectl apply -f deployment/prod/canary.yaml'
+            sh 'kubectl delete -f deployment/prod/proxy.yaml || true'
+            sh 'sleep 5'
+            sh 'kubectl apply -f deployment/prod/canary-proxy.yaml'
+        }
+    }
+    stage('Canary Testing') {
+      steps {
+        script{
+          sh 'sleep 20;' 
+          for (int i = 0; i < 10; i++) {
+            echo "Canary Test Request ${i} ..."
+              sh 'docker run --net=host --rm byrnedo/alpine-curl --fail http://${LB_DOMAIN_NAME}/health'
+              sh 'sleep 1;'
+          }
         }                
+      }       
+    }
+    stage('Deploy to Prodution') {
+      agent {
+        docker {
+          image 'mendrugory/ekskubectl'
+          args '-v ${HOME}/.kube:/root/.kube \
+            -e AWS_ACCESS_KEY_ID=${AWS_PROD_USR} \
+            -e AWS_SECRET_ACCESS_KEY=${AWS_PROD_PSW}'
+        }
+      }            
+      steps {
+        sh 'kubectl delete -f deployment/prod/canary-proxy.yaml || true'
+        sh 'kubectl delete -f deployment/prod/canary.yaml || true'
+        sh 'kubectl delete -f deployment/prod/web.yaml || true'
+        sh 'sleep 5'
+        sh "sed 's@{{VERSION}}@$BUILD_NUMBER@g' deployment/prod/web.yaml.template > deployment/prod/web.yaml"
+        sh 'kubectl apply -f deployment/prod/web.yaml'
+        sh 'kubectl apply -f deployment/prod/proxy.yaml'
+      }        
     }
     stage('Production: Port Forwarding - Tunel') {                     
         steps {
