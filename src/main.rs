@@ -49,7 +49,7 @@ fn delete(id: i32, connection: db::Connection) -> Json<Value> {
 
 #[get("/")]
 fn health(_connection: db::Connection) -> &'static str {
-  "Upp and Running !!!"
+  "Pues claro que llega!!!"
 }
 
 fn main() {
