@@ -14,6 +14,12 @@ pipeline {
   }
   agent any
   stages {
+   stage('Docker Registry Log in') {
+        steps {
+            sh 'docker login ${REGISTRY_HOST} \
+            -u ${REGISTRY_USR} -p ${REGISTRY_PSW}'
+        }
+    }
     stage('Docker build') {
       steps {
         sh 'docker build -t ${DOCKER_IMAGE} -f Dockerfile-UnitTest-add .'
